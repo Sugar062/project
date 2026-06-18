@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payments & Cryptographic Gateway - Capstone NT219</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="glass-bg"></div>
+    
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🔒</span>
+                <h2>Online Payment</h2>
+            </div>
+            <p class="tagline">NT219 - Cryptography Project</p>
+            
+            <nav class="nav-menu">
+                <button class="nav-btn active" id="btn-checkout" onclick="switchTab('checkout')">
+                    <span class="nav-icon">🛒</span> E-Commerce Checkout
+                </button>
+                <button class="nav-btn" id="btn-ledger" onclick="switchTab('ledger')">
+                    <span class="nav-icon">📊</span> Transaction Ledger
+                </button>
+                <button class="nav-btn" id="btn-kms" onclick="switchTab('kms')">
+                    <span class="nav-icon">🔑</span> KMS / HSM Console
+                </button>
+                <button class="nav-btn" id="btn-fraud" onclick="switchTab('fraud')">
+                    <span class="nav-icon">🛡️</span> Fraud engine logs
+                </button>
+                <button class="nav-btn" id="btn-attacks" onclick="switchTab('attacks')">
+                    <span class="nav-icon">⚡</span> Attack Simulator
+                </button>
+            </nav>
+            
+            <div class="system-status">
+                <div class="status-item"><span class="dot green"></span> Order API: <span id="status-order">Checking...</span></div>
+                <div class="status-item"><span class="dot green"></span> Gateway API: <span id="status-gateway">Checking...</span></div>
+                <div class="status-item"><span class="dot green"></span> Fraud API: <span id="status-fraud">Checking...</span></div>
+                <div class="status-item"><span class="dot green"></span> KMS API: <span id="status-kms">Checking...</span></div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- TAB: CHECKOUT -->
+            <section id="tab-checkout" class="tab-pane active">
+                <div class="header">
+                    <h1>E-Commerce Checkout Simulator</h1>
+                    <p>Demonstrates hosted fields tokenization (PCI scope reduction) and 3DS2 SCA flow.</p>
+                </div>
+                
+                <div class="checkout-grid">
+                    <!-- Product Catalog -->
+                    <div class="glass-card catalog-card">
+                        <h3>Shopping Cart</h3>
+                        <div class="product-item">
+                            <div class="product-info">
+                                <h4>Crypto Shield Token Pro</h4>
+                                <p>Hardware security key with dual FIDO2/WebAuthn interfaces.</p>
+                            </div>
+                            <div class="product-price">VNĐ99.00</div>
+                        </div>
+                        <div class="product-item">
+                            <div class="product-info">
+                                <h4>Encrypted Cloud Enclave (1 Year)</h4>
+                                <p>HSM backed storage partition for master encryption keys.</p>
+                            </div>
+                            <div class="product-price">VNĐ1,499.00</div>
+                        </div>
+                        <div class="cart-total">
+                            <span>Total Amount</span>
+                            <span id="cart-total-value">VNĐ1,598.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <div class="glass-card payment-card">
+                        <h3>Secure Payment Gateway</h3>
+                        <p class="section-desc">Card fields are isolated. Details are tokenized directly with the gateway.</p>
+                        
+                        <form id="payment-form" onsubmit="handleCheckout(event)">
+                            <div class="form-group">
+                                <label for="client-name">Cardholder Name</label>
+                                <input type="text" id="client-name" value="Nguyen Van A" required>
+                            </div>
+                            
+                            <!-- Simulated Hosted Fields Iframe container -->
+                            <div class="hosted-fields-container">
+                                <span class="hosted-badge">Hosted Element</span>
+                                <div class="form-group">
+                                    <label for="card-number">Card Number</label>
+                                    <input type="text" id="card-number" placeholder="4242 •••• •••• 4242" value="4242424242424242" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-6">
+                                        <label for="card-expiry">Expiry Date</label>
+                                        <input type="text" id="card-expiry" placeholder="MM/YY" value="12/28" required>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="card-cvc">CVC</label>
+                                        <input type="text" id="card-cvc" placeholder="•••" value="123" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="billing-country">Billing Country</label>
+                                    <select id="billing-country">
+                                        <option value="VN">Vietnam (VN)</option>
+                                        <option value="US">United States (US)</option>
+                                        <option value="JP">Japan (JP)</option>
+                                        <option value="XX">Simulate Blocked Country (XX)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="device-trust">Device Profile</label>
+                                    <select id="device-trust">
+                                        <option value="normal">Trusted Device (Browser/Win10)</option>
+                                        <option value="compromised">Rooted / Android Emulator (Suspicious)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="submit-btn" id="pay-btn">Pay VNĐ1,598.00</button>
+                        </form>
+                        
+                        <!-- Tokenization progress indicator -->
+                        <div id="checkout-progress" class="progress-box hidden">
+                            <div class="spinner"></div>
+                            <p id="progress-text">Creating order & tokenizing card...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: LEDGER -->
+            <section id="tab-ledger" class="tab-pane">
+                <div class="header">
+                    <h1>Transaction Audit Ledger</h1>
+                    <p>Direct view of the secure gateway database. Shows envelope encrypted payloads and verifiable JWS receipts.</p>
+                </div>
+                
+                <div class="glass-card table-card">
+                    <div class="card-header">
+                        <h3>Transactions DB</h3>
+                        <button class="icon-btn" onclick="loadTransactions()">🔄 Refresh Ledger</button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table" id="ledger-table">
+                            <thead>
+                                <tr>
+                                    <th>Txn ID</th>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Risk Score</th>
+                                    <th>Card Details</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: KMS -->
+            <section id="tab-kms" class="tab-pane">
+                <div class="header">
+                    <h1>Key Management Service (KMS / HSM)</h1>
+                    <p>Monitors hardware security module partitions, wraps/unwraps key materials, and rotates receipt signing keys.</p>
+                </div>
+                
+                <div class="kms-grid">
+                    <div class="glass-card hsm-status-card">
+                        <h3>HSM Partition Info</h3>
+                        <div class="info-list" id="hsm-info">
+                            <!-- Loaded dynamically -->
+                        </div>
+                        <button class="submit-btn warning-btn" onclick="rotateKmsKeys()">Rotate Active HSM Signing Key</button>
+                    </div>
+                    
+                    <div class="glass-card keys-card">
+                        <h3>Active Public Verification Key</h3>
+                        <p class="section-desc">RSA 2048-bit key used to verify payment receipts (JWS).</p>
+                        <pre class="code-block" id="kms-pub-key">Loading key material from HSM...</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: FRAUD ENGINE -->
+            <section id="tab-fraud" class="tab-pane">
+                <div class="header">
+                    <h1>Fraud Detection Engine Logs</h1>
+                    <p>Shows evaluation logs of transactions processed by the hybrid rules + logistic regression ML classifier.</p>
+                </div>
+                
+                <div class="fraud-grid">
+                    <div class="glass-card fraud-config">
+                        <h3>Fraud Engine Configurations</h3>
+                        <ul class="rule-list">
+                            <li><strong>Rule A (Velocity Limit)</strong>: If request frequency >= 3 attempts/min -> Trigger 3DS challenge. If >= 5 attempts/min -> Hard Block.</li>
+                            <li><strong>Rule B (Amount Limit)</strong>: If transaction amount >= VNĐ2,000 -> Force 3DS. If >= VNĐ10,000 -> Hard Block.</li>
+                            <li><strong>Rule C (Country Block)</strong>: Block country code "XX" directly.</li>
+                            <li><strong>Logistic Regression Model</strong>: Standard ML classifier evaluating risk probability based on inputs.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="glass-card fraud-logs">
+                        <h3>Recent Evaluation Logs</h3>
+                        <div class="logs-console" id="fraud-log-console">
+                            <div class="log-entry system">Fraud engine initialized. Logistic Regression model loaded. Waiting for transactions...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: ATTACK SIMULATOR -->
+            <section id="tab-attacks" class="tab-pane">
+                <div class="header">
+                    <h1>Security Attack Simulator (Weakness Validation)</h1>
+                    <p>Run simulated attacks directly from the browser sandbox to verify the gateway's cryptographic defenses.</p>
+                </div>
+                
+                <div class="attack-grid">
+                    <!-- Attack 1: Token Replay -->
+                    <div class="glass-card attack-card">
+                        <div class="attack-header">
+                            <span class="attack-badge">Replay Attack</span>
+                            <h3>Token Replay Attack</h3>
+                        </div>
+                        <p>Attempts to reuse a card token (`tok_xxxx`) to execute a secondary charge. In a weak gateway, this might succeed if tokens aren't invalidated.</p>
+                        <button class="submit-btn danger-btn" onclick="simulateTokenReplay()">Execute Token Replay</button>
+                    </div>
+
+                    <!-- Attack 2: Amount Tampering -->
+                    <div class="glass-card attack-card">
+                        <div class="attack-header">
+                            <span class="attack-badge">Data Tampering</span>
+                            <h3>Order Price Manipulation</h3>
+                        </div>
+                        <p>Simulates a customer modifying the amount on transit (e.g. from VNĐ1,598 to VNĐ1.00) before sending to the payment gateway.</p>
+                        <button class="submit-btn danger-btn" onclick="simulatePriceManipulation()">Execute Price Tampering</button>
+                    </div>
+
+                    <!-- Attack 3: Unauthorized S2S Call -->
+                    <div class="glass-card attack-card">
+                        <div class="attack-header">
+                            <span class="attack-badge">Privilege Escalation</span>
+                            <h3>Bypass HMAC S2S Verification</h3>
+                        </div>
+                        <p>Attempts to hit the internal Order Service endpoint directly to mark an order as completed, bypassing the Payment Orchestrator.</p>
+                        <button class="submit-btn danger-btn" onclick="simulateUnauthorizedS2S()">Execute Direct Callback</button>
+                    </div>
+                </div>
+                
+                <div class="glass-card attack-output">
+                    <h3>Simulation Output & Security Analysis</h3>
+                    <div class="logs-console" id="attack-console">
+                        <div class="log-entry system">Select an attack scenario above to run the security drill. Logs will print the request payloads and response codes showing the gateway defense blocks.</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 3-D SECURE OTP MODAL -->
+    <div id="modal-3ds" class="modal-overlay hidden">
+        <div class="glass-card modal-card">
+            <div class="modal-header">
+                <h2>🔐 3-D Secure Verification</h2>
+                <p>Strong Customer Authentication required for this transaction.</p>
+            </div>
+            <div class="modal-body">
+                <div class="otp-instruction">
+                    <p>We've sent a simulated SMS OTP to your registered phone number. Enter the verification code to authorize this transaction.</p>
+                    <p class="otp-hint">Hint: For test cards, the mock OTP code is <strong>123456</strong>.</p>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" class="otp-field" maxlength="6">
+                </div>
+                <div class="modal-error hidden" id="otp-error">Incorrect verification code. Please try again.</div>
+            </div>
+            <div class="modal-footer">
+                <button class="submit-btn" onclick="submitOtp()">Submit Verification</button>
+                <button class="submit-btn cancel-btn" onclick="close3dsModal()">Cancel Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CRYPTOGRAPHIC DETAILS MODAL -->
+    <div id="modal-crypto" class="modal-overlay hidden">
+        <div class="glass-card modal-card wide-modal">
+            <div class="modal-header">
+                <h2>🔍 Cryptographic Details & Verifications</h2>
+                <button class="close-modal-btn" onclick="closeCryptoModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="crypto-section">
+                    <h3>1. Envelope Encryption Fields (Data at Rest Protection)</h3>
+                    <p>The merchant database stores card data in encrypted format using a random AES-256 Data Encryption Key (DEK). The DEK is encrypted (wrapped) by the KMS Master RSA KEK.</p>
+                    
+                    <div class="crypto-flex">
+                        <div class="crypto-box">
+                            <strong>AES Encrypted Card Payload (Hex)</strong>
+                            <div class="code-view" id="crypto-enc-card">...</div>
+                        </div>
+                        <div class="crypto-box">
+                            <strong>Wrapped DEK (Hex)</strong>
+                            <div class="code-view" id="crypto-wrapped-dek">...</div>
+                        </div>
+                    </div>
+                    <button class="submit-btn compact-btn" id="decrypt-envelope-btn">Decrypt Card Data (Requires S2S Unwrap)</button>
+                    <div class="decrypted-result hidden" id="decrypted-card-data">
+                        <strong>Decrypted Card Data:</strong> <span id="decrypted-card-val">...</span>
+                    </div>
+                </div>
+
+                <div class="crypto-section">
+                    <h3>2. Non-Repudiable JWS Receipt (Verifiable Log)</h3>
+                    <p>The gateway generates a JWS signed with the KMS Receipt Signing Key. We can verify the receipt signature locally using the public key.</p>
+                    
+                    <div class="form-group">
+                        <strong>JSON Web Signature (JWS Compact Format)</strong>
+                        <pre class="code-block wrap-text" id="crypto-jws-raw">...</pre>
+                    </div>
+
+                    <div class="crypto-flex">
+                        <div class="crypto-box">
+                            <strong>JWS Header (Decoded)</strong>
+                            <pre class="code-block" id="crypto-jws-header">...</pre>
+                        </div>
+                        <div class="crypto-box">
+                            <strong>JWS Payload (Decoded)</strong>
+                            <pre class="code-block" id="crypto-jws-payload">...</pre>
+                        </div>
+                    </div>
+                    
+                    <button class="submit-btn compact-btn" onclick="verifyJwsReceipt()">Verify Cryptographic Receipt Signature</button>
+                    <div class="verification-badge hidden" id="jws-verification-result">
+                        Signature Verified!
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
